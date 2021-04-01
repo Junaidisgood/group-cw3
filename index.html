@@ -45,8 +45,7 @@
                     <p>Available stock: {{product.availableInventory}}</p>
                     
                     
-                    <my-component v-on:add-me="addToCart(product)"></my-component>
-                    <button disabled="disabled" v-else>Add to cart</button>
+                    <my-component v-on:add-me="addToCart(product)" v-on:canAdd-me="canAddToCart(product)"></my-component>
                     
                     <span v-if='product.availableInventory === cartCount(product.id)'>All out!</span>
                     <span v-else-if="product.availableInventory - cartCount(product.id) < 5">
@@ -125,23 +124,32 @@
     
     <script type="text/javascript">
         const MyComponent = {
-            methods: {
-                template: `<div>
-                                <button v-on:click="childAddToCart" v-if="canAddToCart(product)">
+            template: `<div>
+                                <button v-on:click="childAddToCart" v-if="childCanAddToCart">
                                     Add to cart
                                 </button>
+
+                                <button disabled="disabled" v-else>Add to cart</button>
                             </div>`,
+            methods: {
                 childAddToCart() {  // runs when button is clicked
                     this.$emit('add-me'); // emits a custom event
+                },
+                childCanAddToCart(){
+                    this.$emit('canAdd-me');
                 }
             }
         }
         var webstore = new Vue({
             el: '#app',
-            data: {
-                sitename: 'Vue.js Pet Depot',
-                products: products,
-                // product: {
+            components: {
+                'my-component': MyComponent
+            },
+            data() {
+                return{
+                    sitename: 'Vue.js Pet Depot',
+                    products: products,
+                    // product: {
                     //     id: 1001,
                     //     title: "Cat Food, 25lb bag",
                     //     description: "A 25 pound bag of <em>irresistible</em>, " + "organic goodness for your cat.",
@@ -170,9 +178,8 @@
                         CA: 'California',
                         NV: 'Nevada'
                     },
-                    components: {
-                        'my-component': MyComponent
-                    },
+                }
+                
                 },
                 // created: function () {
                     //     this.products = allProducts
